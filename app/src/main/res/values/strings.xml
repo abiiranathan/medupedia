@@ -1,0 +1,8 @@
+<resources>
+    <string name="app_name">Medupedia</string>
+    <string name="app_description">High Yield eponymous medical signs, symptoms and differentials</string>
+    <string name="diseases">Diseases</string>
+    <string name="signs">Signs</string>
+    <string name="symptoms">Symptoms</string>
+    <string name="description">Description</string>
+</resources>
