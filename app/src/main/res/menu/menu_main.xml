@@ -4,10 +4,12 @@
     tools:context=".MainActivity">
 
     <item  android:id="@+id/symptom_menu"
-        android:title="View diseases by symptoms"/>
+        android:title="@string/view_diseases_by_symptoms"/>
     <item  android:id="@+id/sign_menu"
-        android:title="View Diseases by signs"/>
+        android:title="@string/view_diseases_by_signs"/>
+    <item  android:id="@+id/reload_page"
+        android:title="@string/reload"/>
     <item  android:id="@+id/exit_menu"
-        android:title="Exit"
+        android:title="@string/exit"
         app:showAsAction="withText"/>
 </menu>

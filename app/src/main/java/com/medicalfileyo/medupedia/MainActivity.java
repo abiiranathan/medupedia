@@ -4,6 +4,8 @@ import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.PersistableBundle;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -19,6 +21,7 @@ import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.google.android.material.appbar.AppBarLayout;
 import com.google.gson.Gson;
 
 import java.util.ArrayList;
@@ -29,6 +32,8 @@ import retrofit2.Response;
 
 public class MainActivity extends AppCompatActivity implements RecyclerViewClickInterface {
     public static final String SELECTED_DISEASE = "SELECTED_DISEASE";
+    private static final String TAG = "MainActivity";
+    private static int backButtonPressCount = 0;
 
     Context context;
     ApiInterface apiInterface;
@@ -36,6 +41,7 @@ public class MainActivity extends AppCompatActivity implements RecyclerViewClick
 
     private ProgressBar spinner;
     private SearchView searchView;
+    private AppBarLayout appBarLayout;
     protected DiseaseViewModel viewModel;
 
     @Override
@@ -46,10 +52,11 @@ public class MainActivity extends AppCompatActivity implements RecyclerViewClick
         context = this;
 
         // Disease api interface
-        apiInterface = ApiClient.getClient().create(ApiInterface.class);
+        apiInterface = ApiClient.getClient(this).create(ApiInterface.class);
 
-        spinner = (ProgressBar) findViewById(R.id.progressBar);
+        spinner = findViewById(R.id.progressBar);
         searchView = findViewById(R.id.searchView);
+        appBarLayout = findViewById(R.id.searchToolBar);
 
         // Start with view model
         // ViewModel provider requires "androidx.lifecycle:lifecycle-extensions:2.2.0"
@@ -61,16 +68,17 @@ public class MainActivity extends AppCompatActivity implements RecyclerViewClick
 
         // Observe the LiveData, passing in this activity as the LifecycleOwner and the observer.
         viewModel.getDiseases().observe(this, diseaseObserver);
-
-        // Fetch the data
         getDiseases();
     }
 
     void showSpinner() {
         spinner.setVisibility(View.VISIBLE);
+        appBarLayout.setVisibility(View.GONE);
     }
+
     void hideSpinner() {
         spinner.setVisibility(View.GONE);
+        appBarLayout.setVisibility(View.VISIBLE);
     }
 
     void setupRecyclerView(ArrayList<Disease> diseases) {
@@ -111,7 +119,7 @@ public class MainActivity extends AppCompatActivity implements RecyclerViewClick
 
                 if (response.isSuccessful()) {
                     // Set data for the view model
-                    viewModel.getDiseases().setValue((ArrayList<Disease>) response.body());
+                    viewModel.getDiseases().setValue(response.body());
                 } else {
                     Context context = getApplicationContext();
                     CharSequence text = "Error fetching diseases";
@@ -135,6 +143,7 @@ public class MainActivity extends AppCompatActivity implements RecyclerViewClick
         });
     }
 
+
     @Override
     public void onItemClicked(Disease disease) {
         Gson gson = new Gson();
@@ -151,6 +160,23 @@ public class MainActivity extends AppCompatActivity implements RecyclerViewClick
         return true;
     }
 
+    @Override
+    protected void onResume() {
+        backButtonPressCount = 0;
+        super.onResume();
+    }
+
+    @Override
+    public void onBackPressed() {
+        backButtonPressCount++;
+
+        if (backButtonPressCount > 1) {
+            finish();
+        } else {
+            Toast.makeText(this, "Press the back button again to quit", Toast.LENGTH_SHORT).show();
+        }
+    }
+
     @SuppressLint("NonConstantResourceId")
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
@@ -158,10 +184,14 @@ public class MainActivity extends AppCompatActivity implements RecyclerViewClick
 
         switch (id) {
             case R.id.symptom_menu:
-                Toast.makeText(getApplicationContext(), "Symptoms feature not yet implemented", Toast.LENGTH_LONG).show();
+                Intent intent = new Intent(this, SymptomListActivity.class);
+                startActivity(intent);
                 return true;
             case R.id.sign_menu:
                 Toast.makeText(getApplicationContext(), "Signs feature not yet implemented.", Toast.LENGTH_LONG).show();
+                return true;
+            case R.id.reload_page:
+                getDiseases();
                 return true;
             case R.id.exit_menu:
                 finish();
