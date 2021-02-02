@@ -4,8 +4,6 @@ import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
-import android.os.PersistableBundle;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -23,7 +21,10 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.material.appbar.AppBarLayout;
 import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 
+import java.io.IOException;
+import java.lang.reflect.Type;
 import java.util.ArrayList;
 
 import retrofit2.Call;
@@ -32,8 +33,10 @@ import retrofit2.Response;
 
 public class MainActivity extends AppCompatActivity implements RecyclerViewClickInterface {
     public static final String SELECTED_DISEASE = "SELECTED_DISEASE";
-    private static final String TAG = "MainActivity";
+    public static final String DISEASES_JSON = "diseases.json";
     private static int backButtonPressCount = 0;
+    private ArrayList<Disease> diseaseData;
+    private final StorageManager storageManager = new StorageManager();
 
     Context context;
     ApiInterface apiInterface;
@@ -82,6 +85,8 @@ public class MainActivity extends AppCompatActivity implements RecyclerViewClick
     }
 
     void setupRecyclerView(ArrayList<Disease> diseases) {
+        diseaseData = diseases;
+
         RecyclerView recyclerView = findViewById(R.id.recyclerView);
         LinearLayoutManager layoutManager = new LinearLayoutManager(getApplicationContext());
         recyclerView.setLayoutManager(layoutManager);
@@ -127,6 +132,13 @@ public class MainActivity extends AppCompatActivity implements RecyclerViewClick
 
                     Toast toast = Toast.makeText(context, text, duration);
                     toast.show();
+
+                    try {
+                        loadOfflineDiseases();
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+
                 }
             }
 
@@ -139,10 +151,44 @@ public class MainActivity extends AppCompatActivity implements RecyclerViewClick
 
                 Toast toast = Toast.makeText(context, text, duration);
                 toast.show();
+
+                // Attempt to load offline data
+                try {
+                    loadOfflineDiseases();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
             }
         });
     }
 
+    void loadOfflineDiseases() throws IOException {
+        if(storageManager.isFilePresent(this, DISEASES_JSON)){
+            String  jsonData = storageManager.read(this, DISEASES_JSON);
+            Gson gson = new Gson();
+
+            Type collectionType = new TypeToken<ArrayList<Disease>>(){}.getType();
+            ArrayList<Disease> loadedDiseases = gson.fromJson(jsonData, collectionType);
+            setupRecyclerView(loadedDiseases);
+            Toast toast = Toast.makeText(context, "Loaded offline data", Toast.LENGTH_SHORT);
+            toast.show();
+        }
+
+    }
+
+    void saveDiseasesOffline() {
+        if (diseaseData != null) {
+            Gson json = new Gson();
+            String diseaseDataJSON = json.toJson(diseaseData);
+            boolean saved = storageManager.create(this, DISEASES_JSON, diseaseDataJSON);
+            if (saved) {
+                Toast.makeText(this, "Diseases data saved offline. It will be loaded while offline", Toast.LENGTH_LONG).show();
+            }
+        } else {
+            Toast.makeText(this, "No diseases loaded!", Toast.LENGTH_SHORT).show();
+        }
+
+    }
 
     @Override
     public void onItemClicked(Disease disease) {
@@ -195,6 +241,8 @@ public class MainActivity extends AppCompatActivity implements RecyclerViewClick
                 return true;
             case R.id.exit_menu:
                 finish();
+            case R.id.save_diseases:
+                saveDiseasesOffline();
             default:
                 return super.onOptionsItemSelected(item);
         }

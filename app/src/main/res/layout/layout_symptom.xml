@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content">
+
+    <LinearLayout
+        android:id="@+id/symptoms_row_item"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:background="@color/cardview_light_background"
+        android:clickable="true"
+        android:focusable="true"
+        android:foreground="?attr/selectableItemBackground"
+        android:padding="8dp"
+        tools:ignore="UselessParent">
+
+        <TextView
+            android:id="@+id/symptom_name"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textColor="#222"
+            android:textSize="18sp" />
+
+        <TextView
+            android:id="@+id/symptom_desc"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:ellipsize="end"
+            android:maxLines="2"
+            android:textSize="12sp" />
+    </LinearLayout>
+
+</RelativeLayout>

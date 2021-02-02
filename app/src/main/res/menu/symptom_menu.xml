@@ -1,0 +1,9 @@
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:context=".SymptomListActivity">
+
+    <item  android:id="@+id/save_symptoms"
+        android:title="@string/save_symptoms_offline"/>
+    <item  android:id="@+id/back_to_home"
+        android:title="@string/back"/>
+</menu>

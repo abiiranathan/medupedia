@@ -7,6 +7,8 @@
         android:title="@string/view_diseases_by_symptoms"/>
     <item  android:id="@+id/sign_menu"
         android:title="@string/view_diseases_by_signs"/>
+    <item  android:id="@+id/save_diseases"
+        android:title="@string/save_diseases_offline"/>
     <item  android:id="@+id/reload_page"
         android:title="@string/reload"/>
     <item  android:id="@+id/exit_menu"
