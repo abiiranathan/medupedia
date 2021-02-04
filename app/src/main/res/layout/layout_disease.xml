@@ -12,7 +12,7 @@
         android:clickable="true"
         android:foreground="?attr/selectableItemBackground"
         android:padding="8dp"
-        android:textColor="#222"
+        android:textColor="#333"
         android:textSize="18sp"
         tools:ignore="MissingConstraints" />
 

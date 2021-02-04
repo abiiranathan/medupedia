@@ -49,4 +49,14 @@ public class StorageManager {
         File file = new File(path);
         return file.exists();
     }
+
+
+    public boolean delete(Context context, String fileName) throws IOException{
+        if (isFilePresent(context, fileName)){
+            String path = context.getFilesDir().getAbsolutePath() + "/" + fileName;
+            File file = new File(path);
+            return file.delete();
+        }
+        return false;
+    }
 }

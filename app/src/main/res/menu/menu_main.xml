@@ -11,6 +11,8 @@
         android:title="@string/save_diseases_offline"/>
     <item  android:id="@+id/reload_page"
         android:title="@string/reload"/>
+    <item  android:id="@+id/delete_offline_data"
+        android:title="@string/delete_offline_data"/>
     <item  android:id="@+id/exit_menu"
         android:title="@string/exit"
         app:showAsAction="withText"/>

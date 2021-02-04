@@ -1,15 +1,15 @@
 package com.medicalfileyo.medupedia;
+
 import android.content.Intent;
 import android.os.Bundle;
 import android.text.Html;
-import android.text.Layout;
 import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.LinearLayout;
 import android.widget.TextView;
-import android.widget.Toast;
-import android.widget.Toolbar;
+
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.google.gson.Gson;
@@ -23,51 +23,55 @@ public class DiseaseDetailActivity extends AppCompatActivity {
         setContentView(R.layout.layout_disease_detail);
         name = findViewById(R.id.disease_detail_name);
         description = findViewById(R.id.disease_detail_description);
-        symptoms = findViewById(R.id.disease_detail_symptoms);
-        signs = findViewById(R.id.disease_detail_signs);
 
         Intent intent = getIntent();
 
         Gson gson = new Gson();
         String data = intent.getStringExtra(MainActivity.SELECTED_DISEASE);
 
-        if(data != null){
+        if (data != null) {
             Disease disease = gson.fromJson(data, Disease.class);
             name.setText(disease.getName());
 
-            if(disease.getAbout().length() > 0){
+            if (disease.getAbout().length() > 0) {
                 description.setText(disease.getAbout());
-            }else{
+            } else {
                 LinearLayout layout = (LinearLayout) findViewById(R.id.description_layout);
                 layout.setVisibility(View.GONE);
             }
 
             // Display disease symptoms
-            if(disease.getSymptoms().size() > 0){
-                StringBuilder sb=new StringBuilder();
-
-                for(Symptom symptom: disease.getSymptoms()){
-                    sb.append("&#8226 ").append(symptom.getName()).append("<br>");
+            LinearLayout symptomLayout = findViewById(R.id.symptom_layout);
+            if (disease.getSymptoms().size() > 0) {
+                for (Symptom symptom : disease.getSymptoms()) {
+                    TextView tv = new TextView(this);
+                    tv.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
+                    StringBuilder sb = new StringBuilder();
+                    sb.append("&#8226 ").append(symptom.getName());
+                    tv.setText(Html.fromHtml(sb.toString()));
+                    tv.setPadding(8, 8, 8,0);
+                    tv.setTextSize(16);
+                    symptomLayout.addView(tv);
                 }
-
-                symptoms.setText(Html.fromHtml(sb.toString()));
-            }else{
-                LinearLayout layout = (LinearLayout) findViewById(R.id.symptom_layout);
-                layout.setVisibility(View.GONE);
+            } else {
+                symptomLayout.setVisibility(View.GONE);
             }
 
             // Display disease signs
-            if(disease.getSigns().size() > 0){
-                StringBuilder sb2=new StringBuilder();
-
-                for(Sign sign: disease.getSigns()){
-                    sb2.append("&#8226 ").append(sign.getName()).append("<br>");
+            LinearLayout linearLayout2 = findViewById(R.id.sign_layout);
+            if (disease.getSigns().size() > 0) {
+                for (Sign sign : disease.getSigns()) {
+                    TextView tv = new TextView(this);
+                    tv.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
+                    StringBuilder sb = new StringBuilder();
+                    sb.append("&#8226 ").append(sign.getName());
+                    tv.setText(Html.fromHtml(sb.toString()));
+                    tv.setPadding(8, 8, 8,0);
+                    tv.setTextSize(16);
+                    linearLayout2.addView(tv);
                 }
-
-                signs.setText(Html.fromHtml(sb2.toString()));
-            }else{
-                LinearLayout layout = (LinearLayout) findViewById(R.id.sign_layout);
-                layout.setVisibility(View.GONE);
+            } else {
+                linearLayout2.setVisibility(View.GONE);
             }
 
             try {
@@ -76,7 +80,6 @@ public class DiseaseDetailActivity extends AppCompatActivity {
                 e.printStackTrace();
             }
         }
-
     }
 
     @Override

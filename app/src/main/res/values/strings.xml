@@ -21,4 +21,11 @@
     <string name="save_diseases_offline">Save diseases offline</string>
     <string name="save_symptoms_offline">Save symptoms offline</string>
     <string name="back">Back</string>
+    <string name="open">Open</string>
+    <string name="close">Close</string>
+    <string name="communicate">Communicate</string>
+    <string name="share">Share</string>
+    <string name="feedback">Feedback</string>
+    <string name="differentials">Differentials</string>
+    <string name="delete_offline_data">Delete offline data</string>
 </resources>

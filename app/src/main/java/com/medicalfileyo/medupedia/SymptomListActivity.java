@@ -1,7 +1,9 @@
 package com.medicalfileyo.medupedia;
 
 import android.annotation.SuppressLint;
+import android.app.ProgressDialog;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
@@ -24,17 +26,22 @@ import java.io.IOException;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 
-import static com.medicalfileyo.medupedia.MainActivity.DISEASES_JSON;
-
 public class SymptomListActivity extends AppCompatActivity implements SymptomListInterface {
-    private SymptomViewModel viewModel;
+    private ProgressDialog progressDialog;
     private SymptomListAdaptor adaptor;
     private SearchView searchView;
+
     ApiInterface apiInterface;
 
-    private String SYMPTOM_JSON = "SYMPTOM_JSON";
+    public static final String SYMPTOM_JSON = "SYMPTOM_JSON";
+    public static String SYMPTOM_DATA = "SYMPTOM_DATA";
+
     private ArrayList<Symptom> symptomData;
     private final StorageManager storageManager = new StorageManager();
+
+    protected static final String MyPREFERENCES = "MyPrefs" ;
+    protected static final String LOAD_OFFLINE_DATA = "LOAD_OFFLINE_DATA";
+    protected SharedPreferences sharedpreferences;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -44,10 +51,30 @@ public class SymptomListActivity extends AppCompatActivity implements SymptomLis
         apiInterface = ApiClient.getClient(this).create(ApiInterface.class);
         searchView = findViewById(R.id.searchView);
 
-        viewModel = new ViewModelProvider(this).get(SymptomViewModel.class);
+        // init progress dialog
+        progressDialog = new ProgressDialog(this);
+        progressDialog.setMessage("Loading...");
+        progressDialog.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
+        progressDialog.setIndeterminate(true);
+
+        SymptomViewModel viewModel = new ViewModelProvider(this).get(SymptomViewModel.class);
         final Observer<ArrayList<Symptom>> symptomObserver = this::setupRecyclerView;
         viewModel.getSymptoms().observe(this, symptomObserver);
-        viewModel.loadAllSymptoms(this, apiInterface);
+
+        // Load data based on state
+        sharedpreferences = getSharedPreferences(MyPREFERENCES, MODE_PRIVATE);
+
+        if(sharedpreferences.getBoolean(LOAD_OFFLINE_DATA, false)){
+            try {
+                loadOfflineSymptoms();
+            } catch (IOException e) {
+                e.printStackTrace();
+                Toast.makeText(this, "Unable to load offline data", Toast.LENGTH_SHORT).show();
+            }
+        }else{
+            viewModel.loadAllSymptoms(this, apiInterface);
+        }
+
     }
 
     private void setupRecyclerView(ArrayList<Symptom> symptoms) {
@@ -80,7 +107,12 @@ public class SymptomListActivity extends AppCompatActivity implements SymptomLis
 
     @Override
     public void onItemClicked(Symptom symptom) {
-        Log.d("Symptom", "onItemClicked: " + symptom.getName());
+        Intent intent = new Intent(this, SymptomDetail.class);
+
+        Gson gson = new Gson();
+        String symptomJSON = gson.toJson(symptom);
+        intent.putExtra(SYMPTOM_DATA, symptomJSON);
+        startActivity(intent);
     }
 
     @Override
@@ -99,20 +131,24 @@ public class SymptomListActivity extends AppCompatActivity implements SymptomLis
                 finish();
                 return true;
             case R.id.save_symptoms:
-                saveDiseasesOffline();
+                saveSymptomsOffline();
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
         }
     }
 
-    public void loadOfflineDiseases() throws IOException {
-        if(storageManager.isFilePresent(this, SYMPTOM_JSON)){
-            String  jsonData = storageManager.read(this, SYMPTOM_JSON);
+    public void loadOfflineSymptoms() throws IOException {
+        if (storageManager.isFilePresent(this, SYMPTOM_JSON)) {
+            String jsonData = storageManager.read(this, SYMPTOM_JSON);
             Gson gson = new Gson();
 
-            Type collectionType = new TypeToken<ArrayList<Symptom>>(){}.getType();
+            Type collectionType = new TypeToken<ArrayList<Symptom>>() {
+            }.getType();
             ArrayList<Symptom> loadedSymptoms = gson.fromJson(jsonData, collectionType);
+
+            if(loadedSymptoms.size() == 0) throw new IOException("No data available");
+
             setupRecyclerView(loadedSymptoms);
             Toast toast = Toast.makeText(this, "Loaded offline symptoms", Toast.LENGTH_SHORT);
             toast.show();
@@ -120,7 +156,7 @@ public class SymptomListActivity extends AppCompatActivity implements SymptomLis
 
     }
 
-    void saveDiseasesOffline() {
+    void saveSymptomsOffline() {
         if (symptomData != null) {
             Gson json = new Gson();
             String diseaseDataJSON = json.toJson(symptomData);
@@ -134,4 +170,11 @@ public class SymptomListActivity extends AppCompatActivity implements SymptomLis
 
     }
 
+    public void showProgressDialog() {
+        progressDialog.show();
+    }
+
+    public void hideProgressDialog() {
+        progressDialog.dismiss();
+    }
 }

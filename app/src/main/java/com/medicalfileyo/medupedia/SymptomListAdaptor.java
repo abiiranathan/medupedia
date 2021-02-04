@@ -38,6 +38,9 @@ public class SymptomListAdaptor extends RecyclerView.Adapter<SymptomListAdaptor.
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
         holder.getTextView().setText(symptoms.get(position).getName());
         holder.getDescription().setText(symptoms.get(position).getDescription());
+        if (symptoms.get(position).getDescription().isEmpty()){
+            holder.getDescription().setVisibility(View.GONE);
+        }
     }
 
     @Override

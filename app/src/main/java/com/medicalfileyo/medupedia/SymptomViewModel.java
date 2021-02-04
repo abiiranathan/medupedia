@@ -1,6 +1,5 @@
 package com.medicalfileyo.medupedia;
 
-import android.content.Context;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -26,12 +25,14 @@ public class SymptomViewModel  extends ViewModel {
     }
 
     public void loadAllSymptoms(SymptomListActivity context, ApiInterface apiInterface){
+        context.showProgressDialog();
         Call<ArrayList<Symptom>> call = apiInterface.getSymptoms();
         SymptomViewModel viewModel = this;
 
         call.enqueue(new Callback<ArrayList<Symptom>>() {
             @Override
             public void onResponse(@NonNull Call<ArrayList<Symptom>> call, @NonNull Response<ArrayList<Symptom>> response) {
+                context.hideProgressDialog();
                 if (response.isSuccessful()) {
                     viewModel.getSymptoms().setValue(response.body());
                 } else {
@@ -42,7 +43,7 @@ public class SymptomViewModel  extends ViewModel {
                     toast.show();
 
                     try {
-                        context.loadOfflineDiseases();
+                        context.loadOfflineSymptoms();
                     } catch (IOException e) {
                         e.printStackTrace();
                     }
@@ -51,13 +52,14 @@ public class SymptomViewModel  extends ViewModel {
 
             @Override
             public void onFailure(@NonNull Call<ArrayList<Symptom>> call, @NonNull Throwable t) {
+                context.hideProgressDialog();
                 CharSequence text = t.getLocalizedMessage();
                 int duration = Toast.LENGTH_LONG;
                 Toast toast = Toast.makeText(context, text, duration);
                 toast.show();
 
                 try {
-                    context.loadOfflineDiseases();
+                    context.loadOfflineSymptoms();
                 } catch (IOException e) {
                     e.printStackTrace();
                 }

@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <group android:checkableBehavior="single">
+        <item
+            android:id="@+id/navi_diseases"
+            android:title="@string/diseases" />
+        <item
+            android:id="@+id/navi_symptoms"
+            android:title="@string/symptoms" />
+        <item
+            android:id="@+id/navi_signs"
+            android:title="@string/signs" />
+    </group>
+
+    <item android:title="@string/communicate">
+        <menu>
+            <item
+                android:id="@+id/navi_share"
+                android:title="@string/share"
+                />
+            <item
+                android:id="@+id/navi_feedback"
+                android:title="@string/feedback" />
+        </menu>
+    </item>
+</menu>
