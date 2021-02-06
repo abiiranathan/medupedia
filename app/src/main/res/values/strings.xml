@@ -19,7 +19,7 @@
     <string name="view_diseases_by_signs">View Diseases by signs</string>
     <string name="exit">Exit</string>
     <string name="save_diseases_offline">Save diseases offline</string>
-    <string name="save_symptoms_offline">Save symptoms offline</string>
+    <string name="save_symptoms_offline">Save offline</string>
     <string name="back">Back</string>
     <string name="open">Open</string>
     <string name="close">Close</string>

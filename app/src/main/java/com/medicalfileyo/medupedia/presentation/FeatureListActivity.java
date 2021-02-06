@@ -1,4 +1,4 @@
-package com.medicalfileyo.medupedia;
+package com.medicalfileyo.medupedia.presentation;
 
 import android.annotation.SuppressLint;
 import android.app.ProgressDialog;
@@ -21,35 +21,38 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
+import com.medicalfileyo.medupedia.ApiClient;
+import com.medicalfileyo.medupedia.ApiInterface;
+import com.medicalfileyo.medupedia.R;
+import com.medicalfileyo.medupedia.StorageManager;
 
 import java.io.IOException;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 
-public class SymptomListActivity extends AppCompatActivity implements SymptomListInterface {
+abstract public class FeatureListActivity extends AppCompatActivity {
     private ProgressDialog progressDialog;
-    private SymptomListAdaptor adaptor;
+    private FeatureListAdapter adaptor;
     private SearchView searchView;
-
-    ApiInterface apiInterface;
-
-    public static final String SYMPTOM_JSON = "SYMPTOM_JSON";
-    public static String SYMPTOM_DATA = "SYMPTOM_DATA";
-
-    private ArrayList<Symptom> symptomData;
+    private ArrayList<Feature> data;
     private final StorageManager storageManager = new StorageManager();
 
     protected static final String MyPREFERENCES = "MyPrefs" ;
     protected static final String LOAD_OFFLINE_DATA = "LOAD_OFFLINE_DATA";
     protected SharedPreferences sharedpreferences;
 
+    protected static final String SIGNS = "Signs";
+    protected static final String SYMPTOMS = "Symptoms";
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_symptom_list);
 
-        apiInterface = ApiClient.getClient(this).create(ApiInterface.class);
+        ApiInterface apiInterface = ApiClient.getClient(this).create(ApiInterface.class);
         searchView = findViewById(R.id.searchView);
+
+        getSupportActionBar().setTitle(getScreenTitle());
 
         // init progress dialog
         progressDialog = new ProgressDialog(this);
@@ -57,39 +60,32 @@ public class SymptomListActivity extends AppCompatActivity implements SymptomLis
         progressDialog.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
         progressDialog.setIndeterminate(true);
 
-        SymptomViewModel viewModel = new ViewModelProvider(this).get(SymptomViewModel.class);
-        final Observer<ArrayList<Symptom>> symptomObserver = this::setupRecyclerView;
-        viewModel.getSymptoms().observe(this, symptomObserver);
+        FeatureViewModel viewModel = new ViewModelProvider(this).get(FeatureViewModel.class);
+        final Observer<ArrayList<Feature>> featureObserver = this::setupRecyclerView;
+        viewModel.getFeatures().observe(this, featureObserver);
 
-        // Load data based on state
         sharedpreferences = getSharedPreferences(MyPREFERENCES, MODE_PRIVATE);
-
         if(sharedpreferences.getBoolean(LOAD_OFFLINE_DATA, false)){
-            try {
-                loadOfflineSymptoms();
-            } catch (IOException e) {
-                e.printStackTrace();
-                Toast.makeText(this, "Unable to load offline data", Toast.LENGTH_SHORT).show();
-            }
+            loadOfflineFeatures();
         }else{
-            viewModel.loadAllSymptoms(this, apiInterface);
+            viewModel.loadAllFeatures(this, apiInterface, getType());
         }
 
     }
 
-    private void setupRecyclerView(ArrayList<Symptom> symptoms) {
-        symptomData = symptoms;
+    private void setupRecyclerView(ArrayList<Feature> features) {
+        data = features;
 
         RecyclerView recyclerView = findViewById(R.id.recyclerView);
+        adaptor = new FeatureListAdapter(features, this.getClickInterface());
+        recyclerView.setAdapter(adaptor);
+
         LinearLayoutManager layoutManager = new LinearLayoutManager(getApplicationContext());
         recyclerView.setLayoutManager(layoutManager);
-
-        adaptor = new SymptomListAdaptor(symptoms, this);
 
         DividerItemDecoration dividerItemDecoration = new DividerItemDecoration(recyclerView.getContext(),
                 layoutManager.getOrientation());
         recyclerView.addItemDecoration(dividerItemDecoration);
-        recyclerView.setAdapter(adaptor);
 
         searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
             @Override
@@ -105,14 +101,17 @@ public class SymptomListActivity extends AppCompatActivity implements SymptomLis
         });
     }
 
-    @Override
-    public void onItemClicked(Symptom symptom) {
-        Intent intent = new Intent(this, SymptomDetail.class);
+    protected abstract RecyclerViewClickInterface getClickInterface();
+    protected abstract String getScreenTitle();
+    protected abstract String getType();
+    protected abstract String getOfflineFilePath();
 
-        Gson gson = new Gson();
-        String symptomJSON = gson.toJson(symptom);
-        intent.putExtra(SYMPTOM_DATA, symptomJSON);
-        startActivity(intent);
+    public void showProgressDialog() {
+        progressDialog.show();
+    }
+
+    public void hideProgressDialog() {
+        progressDialog.dismiss();
     }
 
     @Override
@@ -131,50 +130,42 @@ public class SymptomListActivity extends AppCompatActivity implements SymptomLis
                 finish();
                 return true;
             case R.id.save_symptoms:
-                saveSymptomsOffline();
+                saveFeaturesOffline();
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
         }
     }
 
-    public void loadOfflineSymptoms() throws IOException {
-        if (storageManager.isFilePresent(this, SYMPTOM_JSON)) {
-            String jsonData = storageManager.read(this, SYMPTOM_JSON);
-            Gson gson = new Gson();
+    public void loadOfflineFeatures(){
+        if (storageManager.isFilePresent(this, getOfflineFilePath())) {
+            try {
+                String jsonData = storageManager.read(this, getOfflineFilePath());
+                Gson gson = new Gson();
 
-            Type collectionType = new TypeToken<ArrayList<Symptom>>() {
-            }.getType();
-            ArrayList<Symptom> loadedSymptoms = gson.fromJson(jsonData, collectionType);
-
-            if(loadedSymptoms.size() == 0) throw new IOException("No data available");
-
-            setupRecyclerView(loadedSymptoms);
-            Toast toast = Toast.makeText(this, "Loaded offline symptoms", Toast.LENGTH_SHORT);
-            toast.show();
+                Type collectionType = new TypeToken<ArrayList<Feature>>() {
+                }.getType();
+                ArrayList<Feature> loadedData = gson.fromJson(jsonData, collectionType);
+                setupRecyclerView(loadedData);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
         }
 
     }
 
-    void saveSymptomsOffline() {
-        if (symptomData != null) {
+    void saveFeaturesOffline() {
+        if (data != null) {
             Gson json = new Gson();
-            String diseaseDataJSON = json.toJson(symptomData);
-            boolean saved = storageManager.create(this, SYMPTOM_JSON, diseaseDataJSON);
+            String toSave = json.toJson(data);
+            boolean saved = storageManager.create(this, getOfflineFilePath(), toSave);
             if (saved) {
-                Toast.makeText(this, "Symptoms saved offline. It will be loaded while offline", Toast.LENGTH_LONG).show();
+                Toast.makeText(this, "Saved ok!", Toast.LENGTH_LONG).show();
             }
         } else {
-            Toast.makeText(this, "No symptoms to save!", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, "No data to save!", Toast.LENGTH_SHORT).show();
         }
 
     }
 
-    public void showProgressDialog() {
-        progressDialog.show();
-    }
-
-    public void hideProgressDialog() {
-        progressDialog.dismiss();
-    }
 }

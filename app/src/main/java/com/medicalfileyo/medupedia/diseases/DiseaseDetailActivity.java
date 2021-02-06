@@ -1,9 +1,8 @@
-package com.medicalfileyo.medupedia;
+package com.medicalfileyo.medupedia.diseases;
 
 import android.content.Intent;
 import android.os.Bundle;
 import android.text.Html;
-import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
@@ -13,6 +12,9 @@ import android.widget.TextView;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.google.gson.Gson;
+import com.medicalfileyo.medupedia.MainActivity;
+import com.medicalfileyo.medupedia.R;
+import com.medicalfileyo.medupedia.presentation.Feature;
 
 public class DiseaseDetailActivity extends AppCompatActivity {
     TextView name, description, symptoms, signs;
@@ -43,7 +45,7 @@ public class DiseaseDetailActivity extends AppCompatActivity {
             // Display disease symptoms
             LinearLayout symptomLayout = findViewById(R.id.symptom_layout);
             if (disease.getSymptoms().size() > 0) {
-                for (Symptom symptom : disease.getSymptoms()) {
+                for (Feature symptom : disease.getSymptoms()) {
                     TextView tv = new TextView(this);
                     tv.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
                     StringBuilder sb = new StringBuilder();
@@ -60,7 +62,7 @@ public class DiseaseDetailActivity extends AppCompatActivity {
             // Display disease signs
             LinearLayout linearLayout2 = findViewById(R.id.sign_layout);
             if (disease.getSigns().size() > 0) {
-                for (Sign sign : disease.getSigns()) {
+                for (Feature sign : disease.getSigns()) {
                     TextView tv = new TextView(this);
                     tv.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
                     StringBuilder sb = new StringBuilder();

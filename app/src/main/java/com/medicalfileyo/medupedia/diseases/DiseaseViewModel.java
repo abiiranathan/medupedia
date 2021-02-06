@@ -1,4 +1,4 @@
-package com.medicalfileyo.medupedia;
+package com.medicalfileyo.medupedia.diseases;
 
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;

@@ -1,4 +1,4 @@
-package com.medicalfileyo.medupedia;
+package com.medicalfileyo.medupedia.diseases;
 
 import android.view.LayoutInflater;
 import android.view.View;
@@ -10,18 +10,20 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.medicalfileyo.medupedia.R;
+
 import java.util.ArrayList;
 
 public class DiseaseListAdaptor extends RecyclerView.Adapter<DiseaseListAdaptor.ViewHolder> implements Filterable {
     ArrayList<Disease> diseases;
     ArrayList<Disease> fullDiseases;
 
-    RecyclerViewClickInterface recyclerViewClickInterface;
+    DiseaseClickInterface diseaseClickInterface;
 
-    DiseaseListAdaptor(ArrayList<Disease> data, RecyclerViewClickInterface recyclerViewClickInterface) {
+    public DiseaseListAdaptor(ArrayList<Disease> data, DiseaseClickInterface diseaseClickInterface) {
         this.diseases = data;
         this.fullDiseases = (ArrayList<Disease>) data.clone();
-        this.recyclerViewClickInterface = recyclerViewClickInterface;
+        this.diseaseClickInterface = diseaseClickInterface;
     }
 
     @NonNull
@@ -85,7 +87,7 @@ public class DiseaseListAdaptor extends RecyclerView.Adapter<DiseaseListAdaptor.
         public ViewHolder(View view) {
             super(view);
             textView = view.findViewById(R.id.disease_name);
-            textView.setOnClickListener(v -> recyclerViewClickInterface.onItemClicked(diseases.get(getAdapterPosition())));
+            textView.setOnClickListener(v -> diseaseClickInterface.onItemClicked(diseases.get(getAdapterPosition())));
         }
 
         public TextView getTextView() {

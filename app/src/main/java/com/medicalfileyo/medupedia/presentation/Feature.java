@@ -1,32 +1,14 @@
-package com.medicalfileyo.medupedia;
+package com.medicalfileyo.medupedia.presentation;
 
-import java.util.ArrayList;
-
-public class Symptom {
+public class Feature {
     private int id;
     private String name;
     private String description;
-    private ArrayList<Disease> differentials;
 
-    public Symptom(int id, String name, String description) {
+    public Feature(int id, String name, String description) {
         this.id = id;
         this.name = name;
         this.description = description;
-    }
-
-    public Symptom(int id, String name, String description, ArrayList<Disease> differentials) {
-        this.id = id;
-        this.name = name;
-        this.description = description;
-        this.differentials = differentials;
-    }
-
-    public ArrayList<Disease> getDifferentials() {
-        return differentials;
-    }
-
-    public void setDifferentials(ArrayList<Disease> differentials) {
-        this.differentials = differentials;
     }
 
     public int getId() {
@@ -55,7 +37,7 @@ public class Symptom {
 
     @Override
     public String toString() {
-        return "Symptom{" +
+        return "Feature{" +
                 "id=" + id +
                 ", name='" + name + '\'' +
                 ", description='" + description + '\'' +

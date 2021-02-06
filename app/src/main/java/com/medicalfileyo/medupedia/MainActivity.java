@@ -31,6 +31,15 @@ import com.google.android.material.navigation.NavigationView;
 import com.google.android.material.switchmaterial.SwitchMaterial;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
+import com.medicalfileyo.medupedia.diseases.Disease;
+import com.medicalfileyo.medupedia.diseases.DiseaseClickInterface;
+import com.medicalfileyo.medupedia.diseases.DiseaseDetailActivity;
+import com.medicalfileyo.medupedia.diseases.DiseaseListAdaptor;
+import com.medicalfileyo.medupedia.diseases.DiseaseViewModel;
+import com.medicalfileyo.medupedia.presentation.FeatureListActivity;
+import com.medicalfileyo.medupedia.presentation.SignListActivity;
+import com.medicalfileyo.medupedia.presentation.SymptomListActivity;
+
 
 import java.io.IOException;
 import java.lang.reflect.Type;
@@ -40,9 +49,12 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
-public class MainActivity extends AppCompatActivity implements RecyclerViewClickInterface, NavigationView.OnNavigationItemSelectedListener {
+
+public class MainActivity extends AppCompatActivity implements DiseaseClickInterface, NavigationView.OnNavigationItemSelectedListener {
     public static final String SELECTED_DISEASE = "SELECTED_DISEASE";
     public static final String DISEASES_JSON = "diseases.json";
+    public static final String SYMPTOMS = "Symptoms";
+    public static final String SIGNS = "Signs";
     private static int backButtonPressCount = 0;
     private final StorageManager storageManager = new StorageManager();
     public static ArrayList<Disease> diseaseData;
@@ -114,7 +126,7 @@ public class MainActivity extends AppCompatActivity implements RecyclerViewClick
         sharedpreferences = getSharedPreferences(MyPREFERENCES, MODE_PRIVATE);
 
         // Gave me headache to get the switch in header view
-        switch1 = (SwitchMaterial) navigationView.getHeaderView(0).findViewById(R.id.switch_element);
+        switch1 = navigationView.getHeaderView(0).findViewById(R.id.switch_element);
         switch1.setChecked(sharedpreferences.getBoolean(LOAD_OFFLINE_DATA, false));
 
         switch1.setOnCheckedChangeListener((buttonView, isChecked) -> {
@@ -157,15 +169,15 @@ public class MainActivity extends AppCompatActivity implements RecyclerViewClick
         diseaseData = diseases;
 
         RecyclerView recyclerView = findViewById(R.id.recyclerView);
+        adaptor = new DiseaseListAdaptor(diseases, this);
+        recyclerView.setAdapter(adaptor);
+
         LinearLayoutManager layoutManager = new LinearLayoutManager(getApplicationContext());
         recyclerView.setLayoutManager(layoutManager);
-
-        adaptor = new DiseaseListAdaptor(diseases, this);
 
         DividerItemDecoration dividerItemDecoration = new DividerItemDecoration(recyclerView.getContext(),
                 layoutManager.getOrientation());
         recyclerView.addItemDecoration(dividerItemDecoration);
-        recyclerView.setAdapter(adaptor);
 
         // Set up Search view
         searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
@@ -273,6 +285,7 @@ public class MainActivity extends AppCompatActivity implements RecyclerViewClick
         startActivity(intent);
     }
 
+
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.menu_main, menu);
@@ -287,7 +300,7 @@ public class MainActivity extends AppCompatActivity implements RecyclerViewClick
 
     @Override
     public void onBackPressed() {
-        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer);
+        DrawerLayout drawer = findViewById(R.id.drawer);
         if (drawer.isDrawerOpen(GravityCompat.START)) {
             drawer.closeDrawer(GravityCompat.START);
         } else {
@@ -312,7 +325,8 @@ public class MainActivity extends AppCompatActivity implements RecyclerViewClick
                 startActivity(intent);
                 return true;
             case R.id.sign_menu:
-                Toast.makeText(getApplicationContext(), "Signs feature not yet implemented.", Toast.LENGTH_LONG).show();
+                Intent intent2 = new Intent(this, SignListActivity.class);
+                startActivity(intent2);
                 return true;
             case R.id.reload_page:
                 getDiseases();
@@ -324,7 +338,8 @@ public class MainActivity extends AppCompatActivity implements RecyclerViewClick
             case R.id.delete_offline_data:
                 try {
                     storageManager.delete(this, DISEASES_JSON);
-                    storageManager.delete(this, SymptomListActivity.SYMPTOM_JSON);
+                    storageManager.delete(this, SymptomListActivity.fileName);
+                    storageManager.delete(this, SignListActivity.fileName);
                 } catch (IOException e) {
                     //
                 }
@@ -341,12 +356,16 @@ public class MainActivity extends AppCompatActivity implements RecyclerViewClick
 
         switch (id) {
             case R.id.navi_diseases:
-                Intent intent = new Intent(this, MainActivity.class);
+                Intent intent = new Intent(MainActivity.this, MainActivity.class);
                 startActivity(intent);
                 break;
             case R.id.navi_symptoms:
-                Intent i = new Intent(this, SymptomListActivity.class);
+                Intent i = new Intent(MainActivity.this, SymptomListActivity.class);
                 startActivity(i);
+                break;
+            case R.id.navi_signs:
+                Intent i2 = new Intent(MainActivity.this, SignListActivity.class);
+                startActivity(i2);
                 break;
             default:
                 break;
@@ -355,4 +374,5 @@ public class MainActivity extends AppCompatActivity implements RecyclerViewClick
         drawerLayout.closeDrawer(GravityCompat.START);
         return true;
     }
+
 }
