@@ -15,8 +15,8 @@
     <string name="hello_second_fragment">Hello second fragment. Arg: %1$s</string>
     <string name="symptom_title">Symptoms</string>
     <string name="reload">Reload</string>
-    <string name="view_diseases_by_symptoms">View diseases by symptoms</string>
-    <string name="view_diseases_by_signs">View Diseases by signs</string>
+    <string name="view_diseases_by_symptoms">Symptoms</string>
+    <string name="view_diseases_by_signs">Signs</string>
     <string name="exit">Exit</string>
     <string name="save_diseases_offline">Save diseases offline</string>
     <string name="save_symptoms_offline">Save offline</string>
@@ -25,7 +25,22 @@
     <string name="close">Close</string>
     <string name="communicate">Communicate</string>
     <string name="share">Share</string>
-    <string name="feedback">Feedback</string>
+    <string name="disclaimer">Disclaimer</string>
     <string name="differentials">Differentials</string>
     <string name="delete_offline_data">Delete offline data</string>
+    <string name="disclaimer_description" >
+        Where as the information contained in this app is guaranteed to be correct most of the time, we do not guarantee that it is always the case.
+        Medupedia is built to provide a quick reference to symptoms, signs and differential diagnoses entered by a community of medical professionals. \n\n
+        Information on this platform is not a replacement for clinical acumen and judgement required in treating patients a very dynamic and ever changing
+        medical field.
+        \n\n
+        Health care providers should exercise their own independent clinical judgement when using the mobile app in conjunction with patient care.
+        The developers of Medupedia shall not be held responsible for any medical errors committed by any medical professional using Medupedia.
+        \n\n
+        For a detailed description of diseases, you are advised to consult standard textbooks of medicine.
+        Medupedia does not gather any user data, store any cookies.
+    </string>
+    <string name="copyright">Copyright: Yo Medical Files(U) Limited</string>
+    <string name="launcher_icon">Launcher icon</string>
+    <string name="load_offline_data">Load offline data</string>
 </resources>

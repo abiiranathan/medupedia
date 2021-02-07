@@ -36,10 +36,8 @@ import com.medicalfileyo.medupedia.diseases.DiseaseClickInterface;
 import com.medicalfileyo.medupedia.diseases.DiseaseDetailActivity;
 import com.medicalfileyo.medupedia.diseases.DiseaseListAdaptor;
 import com.medicalfileyo.medupedia.diseases.DiseaseViewModel;
-import com.medicalfileyo.medupedia.presentation.FeatureListActivity;
 import com.medicalfileyo.medupedia.presentation.SignListActivity;
 import com.medicalfileyo.medupedia.presentation.SymptomListActivity;
-
 
 import java.io.IOException;
 import java.lang.reflect.Type;
@@ -53,8 +51,6 @@ import retrofit2.Response;
 public class MainActivity extends AppCompatActivity implements DiseaseClickInterface, NavigationView.OnNavigationItemSelectedListener {
     public static final String SELECTED_DISEASE = "SELECTED_DISEASE";
     public static final String DISEASES_JSON = "diseases.json";
-    public static final String SYMPTOMS = "Symptoms";
-    public static final String SIGNS = "Signs";
     private static int backButtonPressCount = 0;
     private final StorageManager storageManager = new StorageManager();
     public static ArrayList<Disease> diseaseData;
@@ -74,9 +70,9 @@ public class MainActivity extends AppCompatActivity implements DiseaseClickInter
     NavigationView navigationView;
 
     // Shared preferences
-    protected static final String MyPREFERENCES = "MyPrefs" ;
+    protected static final String MyPREFERENCES = "MyPrefs";
     protected static final String LOAD_OFFLINE_DATA = "LOAD_OFFLINE_DATA";
-    protected  SharedPreferences sharedpreferences;
+    protected SharedPreferences sharedpreferences;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -89,9 +85,8 @@ public class MainActivity extends AppCompatActivity implements DiseaseClickInter
 
         ActionBar actionBar = getSupportActionBar();
 
-        if(actionBar != null){
+        if (actionBar != null) {
             actionBar.setBackgroundDrawable(new ColorDrawable(Color.parseColor("#008080")));
-            actionBar.setIcon(R.mipmap.ic_launcher_round);
         }
 
         drawerLayout = findViewById(R.id.drawer);
@@ -135,21 +130,21 @@ public class MainActivity extends AppCompatActivity implements DiseaseClickInter
             editor.apply();
 
             // Capture the data
-            if(isChecked){
+            if (isChecked) {
                 saveDiseasesOffline();
-            }else{
+            } else {
                 getDiseases();
             }
         });
 
-        if(switch1.isChecked()){
+        if (switch1.isChecked()) {
             try {
                 loadOfflineDiseases();
             } catch (IOException e) {
                 e.printStackTrace();
                 Toast.makeText(this, "Unable to load offline data", Toast.LENGTH_LONG).show();
             }
-        }else{
+        } else {
             getDiseases();
         }
 
@@ -247,9 +242,9 @@ public class MainActivity extends AppCompatActivity implements DiseaseClickInter
         hideSpinner();
         if (storageManager.isFilePresent(this, DISEASES_JSON)) {
             String jsonData = storageManager.read(this, DISEASES_JSON);
-            if(jsonData == null){
+            if (jsonData == null) {
                 throw new IOException("No data available");
-            }else{
+            } else {
                 Gson gson = new Gson();
 
                 Type collectionType = new TypeToken<ArrayList<Disease>>() {
@@ -308,6 +303,7 @@ public class MainActivity extends AppCompatActivity implements DiseaseClickInter
 
             if (backButtonPressCount > 1) {
                 finish();
+                // System.exit(0);
             } else {
                 Toast.makeText(this, "Press the back button again to quit", Toast.LENGTH_SHORT).show();
             }
@@ -348,7 +344,6 @@ public class MainActivity extends AppCompatActivity implements DiseaseClickInter
         }
     }
 
-
     @SuppressLint("NonConstantResourceId")
     @Override
     public boolean onNavigationItemSelected(@NonNull MenuItem item) {
@@ -366,6 +361,23 @@ public class MainActivity extends AppCompatActivity implements DiseaseClickInter
             case R.id.navi_signs:
                 Intent i2 = new Intent(MainActivity.this, SignListActivity.class);
                 startActivity(i2);
+                break;
+            case R.id.navi_share:
+                try {
+                    Intent shareIntent = new Intent(Intent.ACTION_SEND);
+                    shareIntent.setType("text/plain");
+                    shareIntent.putExtra(Intent.EXTRA_SUBJECT, "Medupedia");
+                    String shareMessage = "Medupedia\n\nHigh Yield eponymous medical signs, symptoms and differentials.\n\n";
+                    shareMessage = shareMessage + "https://play.google.com/store/apps/details?id=" + BuildConfig.APPLICATION_ID + "\n\n";
+                    shareIntent.putExtra(Intent.EXTRA_TEXT, shareMessage);
+                    startActivity(Intent.createChooser(shareIntent, "Share via"));
+                } catch (Exception e) {
+                    Toast.makeText(this, "Error sharing app", Toast.LENGTH_SHORT).show();
+                }
+                break;
+            case R.id.navi_disclaimer:
+                Intent disclaimerIntent = new Intent(this, DisclaimerActivity.class);
+                startActivity(disclaimerIntent);
                 break;
             default:
                 break;

@@ -19,8 +19,9 @@
                 android:title="@string/share"
                 />
             <item
-                android:id="@+id/navi_feedback"
-                android:title="@string/feedback" />
+                android:id="@+id/navi_disclaimer"
+                android:title="@string/disclaimer" />
         </menu>
     </item>
+    <item android:title="@string/copyright" android:enabled="false"></item>
 </menu>
