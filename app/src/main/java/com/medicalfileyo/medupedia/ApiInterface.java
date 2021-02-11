@@ -9,12 +9,12 @@ import retrofit2.http.GET;
 
 
 public interface ApiInterface {
-    @GET("/diseases")
+    @GET("/api/diseases")
     Call<ArrayList<Disease>> getDiseases();
 
-    @GET("/symptoms")
+    @GET("/api/symptoms")
     Call<ArrayList<Feature>> getSymptoms();
 
-    @GET("/signs")
+    @GET("/api/signs")
     Call<ArrayList<Feature>> getSigns();
 }
